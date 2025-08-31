@@ -1,212 +1,56 @@
-# 🌿 Agri-Sage AI - Plant Disease Diagnosis & Crop Recommendation System
+Agri-Sage AI (CS7050NI Coursework)
+This is a prototype of an intelligent agent for plant disease diagnosis, built for the Artificial Intelligence module (CS7050NI). The agent integrates a local Convolutional Neural Network (CNN) for diagnosis with the Google Gemini API for a fully conversational user experience.
 
-A comprehensive AI-powered agricultural assistant for Nepal that combines plant disease diagnosis with intelligent crop recommendations and conversational AI support.
+Setup and Running Instructions
+Follow these steps precisely to set up and run the project.
 
-## 🎯 Project Overview
+1. Clone the Repository
+If you have downloaded the source code as a ZIP, you can skip this step. Otherwise, clone the repository from GitHub:
 
-Agri-Sage AI is an intelligent agricultural system that helps Nepali farmers identify plant diseases, get crop recommendations, and receive expert advice through natural conversation. The system operates on the **Sense-Think-Act** cycle architecture.
+git clone [https://github.com/your-username/agri-sage-ai.git](https://github.com/your-username/agri-sage-ai.git)
+cd agri-sage-ai
 
-### 🌟 Key Features
+2. Create and Activate a Virtual Environment
+It is highly recommended to use a virtual environment to manage project dependencies.
 
-- **🔬 Plant Disease Diagnosis**: CNN-based image analysis for accurate disease detection
-- **🌱 Crop Recommendations**: Decision Tree model for district-specific crop suggestions
-- **💬 Conversational AI**: Natural language interface for follow-up questions and expert advice
-- **📱 Modern Web Interface**: Beautiful, responsive design with drag-and-drop functionality
-- **🇳🇵 Nepal-Specific**: Tailored for Nepali climate, soil conditions, and farming practices
+# For Windows
+python -m venv venv
+venv\Scripts\activate
 
-## 🏗️ System Architecture
+# For macOS/Linux
+python3 -m venv venv
+source venv/bin/activate
 
-The system follows the **Sense-Think-Act** cycle:
+You should see (venv) at the beginning of your terminal prompt.
 
-### **SENSE** (Front-end Input Capture)
-- HTML web interface captures district and plant leaf image
-- Drag-and-drop image upload with real-time feedback
-- User-friendly form inputs
+3. Install Dependencies
+A requirements.txt file is provided, which lists all the necessary Python libraries. Install them using pip:
 
-### **THINK** (Back-end Processing)
-- **Flask Server**: Handles all backend processing and API endpoints
-- **Crop Recommender**: Decision Tree model for crop recommendations
-- **Disease Diagnoser**: CNN model for plant disease detection
+pip install -r requirements.txt
 
-### **ACT** (Response Generation)
-- Consolidated analysis report with confidence scores
-- Interactive chat interface for follow-up questions
-- Context-aware AI responses
+4. Set Up Environment Variables (Crucial Step)
+This project requires a Google Gemini API key to power its conversational features. This key must be stored securely and should never be committed to version control.
 
-## 🚀 Quick Start
+In the root of the project folder, create a new file named exactly .env.
 
-### Prerequisites
-- Python 3.8+
-- TensorFlow 2.13.0
-- Flask 2.3.3
+Inside this .env file, add your personal API key in the following format (replace your_actual_api_key_here with your key):
 
-### Installation
+GEMINI_API_KEY=your_actual_api_key_here
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/yourusername/agri-sage-ai.git
-   cd agri-sage-ai
-   ```
+5. Generate the Machine Learning Model
+The trained CNN model (plant_disease_model.h5) is not included in the source code due to its large size. You must generate it by running the training script. This script will also download the required PlantVillage image dataset.
 
-2. **Install dependencies**
-   ```bash
-   pip install -r requirements.txt
-   ```
+Note: This process is computationally intensive and will take a significant amount of time.
 
-3. **Set up environment variables**
-   Create a `.env` file in the project root:
-   ```
-   GEMINI_API_KEY=your_gemini_api_key_here
-   FLASK_SECRET_KEY=your-secret-key-here
-   FLASK_DEBUG=True
-   ```
+python train_disease_model.py
 
-4. **Run the application**
-   ```bash
-   python app.py
-   ```
+After the script finishes, you will have the plant_disease_model.h5 and class_indices.json files in your project directory.
 
-5. **Access the application**
-   Open your browser and go to `http://127.0.0.1:5000`
+6. Run the Application
+Once the model has been trained and the setup is complete, you can start the Flask web server with the following command:
 
-## 📁 Project Structure
+python app.py
 
-```
-agri-sage-ai/
-├── app.py                 # Main Flask application
-├── config.py              # Configuration settings
-├── gemini_service.py      # AI conversation service
-├── requirements.txt       # Python dependencies
-├── .gitignore            # Git ignore rules
-├── README.md             # Project documentation
-├── SETUP.md              # Detailed setup guide
-├── templates/
-│   └── index.html        # Main web interface
-├── static/               # Static assets (CSS, JS, images)
-├── models/               # Trained ML models
-│   ├── plant_disease_model.h5
-│   ├── crop_recommender_model.joblib
-│   ├── crop_model_columns.joblib
-│   └── crop_label_encoder.joblib
-├── data/                 # Training datasets
-└── training/             # Model training scripts
-    ├── train_disease_model.py
-    └── train_crop_model.py
-```
+The application will now be running. Open your web browser and navigate to the following address to interact with the Agri-Sage AI agent:
 
-## 🤖 AI Models
-
-### Disease Diagnosis Model
-- **Type**: Convolutional Neural Network (CNN)
-- **Input**: Plant leaf images (224x224 pixels)
-- **Output**: Disease classification with confidence scores
-- **Supported Diseases**: Early blight, Late blight, Leaf mold, Septoria leaf spot, Spider mites, Target spot, Yellow leaf curl virus, Mosaic virus, Healthy plants
-
-### Crop Recommendation Model
-- **Type**: Decision Tree
-- **Input**: District name
-- **Output**: Recommended crop for the district
-- **Coverage**: Major districts of Nepal
-
-## 💬 Conversational AI
-
-The system includes an intelligent chat interface that:
-- Provides natural, conversational responses
-- Offers context-aware advice based on analysis results
-- Suggests treatment and prevention strategies
-- Considers local Nepali agricultural context
-- Supports follow-up questions and detailed explanations
-
-## 🎨 User Interface
-
-### Modern Design Features
-- **Responsive Layout**: Works on desktop, tablet, and mobile
-- **Drag & Drop**: Easy image upload functionality
-- **Real-time Feedback**: Loading states and progress indicators
-- **Beautiful Animations**: Smooth transitions and interactions
-- **Color-coded Results**: Easy-to-understand analysis display
-
-### Workflow
-1. **Upload Image**: Drag & drop or click to upload plant leaf image
-2. **Get Analysis**: Instant disease diagnosis and crop recommendations
-3. **Learn More**: Interactive prompt to explore additional information
-4. **Chat with AI**: Natural conversation for detailed advice and follow-up questions
-
-## 🔧 Configuration
-
-### Environment Variables
-- `GEMINI_API_KEY`: Google Gemini AI API key for enhanced conversations
-- `FLASK_SECRET_KEY`: Flask application secret key
-- `FLASK_DEBUG`: Debug mode (True/False)
-
-### Model Configuration
-- Disease model: `plant_disease_model.h5`
-- Crop model: `crop_recommender_model.joblib`
-- Model columns: `crop_model_columns.joblib`
-- Label encoder: `crop_label_encoder.joblib`
-
-## 📊 Performance
-
-### Model Accuracy
-- **Disease Diagnosis**: High accuracy with confidence scoring
-- **Crop Recommendations**: District-specific recommendations
-- **Response Time**: Fast analysis with real-time feedback
-
-### Supported Formats
-- **Images**: JPG, PNG, GIF (up to 16MB)
-- **Districts**: All major districts of Nepal
-- **Languages**: English interface with Nepali context
-
-## 🛠️ Development
-
-### Adding New Features
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
-
-### Training New Models
-- Use `train_disease_model.py` for disease classification
-- Use `train_crop_model.py` for crop recommendations
-- Ensure proper data preprocessing and validation
-
-## 🤝 Contributing
-
-We welcome contributions! Please see our contributing guidelines:
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
-
-- **TensorFlow**: For deep learning capabilities
-- **Flask**: For web framework
-- **Google Gemini AI**: For conversational AI features
-- **Nepali Agricultural Community**: For domain expertise and testing
-
-## 📞 Support
-
-For support and questions:
-- Create an issue on GitHub
-- Check the [SETUP.md](SETUP.md) for detailed setup instructions
-- Review the troubleshooting section in the documentation
-
-## 🔮 Future Enhancements
-
-- [ ] Multi-language support (Nepali interface)
-- [ ] Mobile app development
-- [ ] Integration with weather APIs
-- [ ] Soil analysis integration
-- [ ] Community features for farmers
-- [ ] Advanced disease prediction models
-
----
-
-**Made with ❤️ for Nepali Farmers**
+http://127.0.0.1:5000
