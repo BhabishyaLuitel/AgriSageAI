@@ -1,27 +1,38 @@
-Agri-Sage AI (CS7050NI Coursework)
-This is a prototype of an intelligent agent for plant disease diagnosis, built for the Artificial Intelligence module (CS7050NI). The agent integrates a local Convolutional Neural Network (CNN) for diagnosis with the Google Gemini API for a fully conversational user experience.
+🌿 Agri-Sage AI (CS7050NI Coursework)
+This repository contains the source code for Agri-Sage AI, an intelligent agent for plant disease diagnosis, built for the Artificial Intelligence module (CS7050NI). The agent integrates a local Convolutional Neural Network (CNN) for core analysis with the Google Gemini API for a fully conversational user experience.
 
-Setup and Running Instructions
-Follow these steps precisely to set up and run the project.
+✨ Key Features
+Intelligent Agent Architecture: Built on the foundational Sense-Think-Act cycle.
 
-1. Clone the Repository
-If you have downloaded the source code as a ZIP, you can skip this step. Otherwise, clone the repository from GitHub:
+Hybrid AI System: Integrates two distinct AI models: a local CNN for visual recognition and a cloud-based LLM for natural language interaction.
 
-git clone [https://github.com/your-username/agri-sage-ai.git](https://github.com/your-username/agri-sage-ai.git)
+Conversational UI: A modern, chat-based interface allows for intuitive interaction, including follow-up questions.
+
+Robust & Resilient: Features a graceful degradation mechanism that allows the core diagnosis to function even if the external Gemini API is unavailable.
+
+🚀 Setup and Running Instructions
+Follow these steps precisely to set up and run the project locally.
+
+1. Initial Setup
+If you have downloaded the source code as a ZIP, unzip it. Otherwise, clone the repository from GitHub:
+
+git clone [https://github.com/BhabishyaLuitel/agri-sage-ai.git](https://github.com/BhabishyaLuitel/agri-sage-ai.git)
 cd agri-sage-ai
 
 2. Create and Activate a Virtual Environment
 It is highly recommended to use a virtual environment to manage project dependencies.
 
-# For Windows
+For Windows:
+
 python -m venv venv
 venv\Scripts\activate
 
-# For macOS/Linux
+For macOS/Linux:
+
 python3 -m venv venv
 source venv/bin/activate
 
-You should see (venv) at the beginning of your terminal prompt.
+You should now see (venv) at the beginning of your terminal prompt.
 
 3. Install Dependencies
 A requirements.txt file is provided, which lists all the necessary Python libraries. Install them using pip:
@@ -29,7 +40,7 @@ A requirements.txt file is provided, which lists all the necessary Python librar
 pip install -r requirements.txt
 
 4. Set Up Environment Variables (Crucial Step)
-This project requires a Google Gemini API key to power its conversational features. This key must be stored securely and should never be committed to version control.
+This project requires a Google Gemini API key to power its conversational features. This key must be stored securely.
 
 In the root of the project folder, create a new file named exactly .env.
 
@@ -38,7 +49,7 @@ Inside this .env file, add your personal API key in the following format (replac
 GEMINI_API_KEY=your_actual_api_key_here
 
 5. Generate the Machine Learning Model
-The trained CNN model (plant_disease_model.h5) is not included in the source code due to its large size. You must generate it by running the training script. This script will also download the required PlantVillage image dataset.
+The trained CNN model (plant_disease_model.h5) is not included in the repository due to its large size. You must generate it by running the training script. This script will also download the required PlantVillage image dataset.
 
 Note: This process is computationally intensive and will take a significant amount of time.
 
