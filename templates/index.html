@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agri-Sage AI Advisor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f7fafc; }
+        #chat-container { scroll-behavior: smooth; }
+        .message { animation: fadeIn 0.5s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .typing-indicator span {
+            animation: bounce 1.4s infinite ease-in-out both;
+            display: inline-block;
+            width: 8px; height: 8px;
+            background-color: #4a5568;
+            border-radius: 50%;
+            margin: 0 2px;
+        }
+        .typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
+        .typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1.0); } }
+        .prose h3 { margin-top: 1.25em; margin-bottom: 0.5em; font-size: 1.1em; font-weight: 600; }
+        .prose ul { list-style-type: disc; padding-left: 1.5em; }
+        .prose strong { font-weight: 600; }
+        .prose img { max-width: 200px; border-radius: 0.5rem; margin-top: 0.5rem; }
+    </style>
+</head>
+<body class="flex flex-col h-screen">
+
+    <header class="bg-white border-b border-gray-200 p-4 text-center">
+        <h1 class="text-2xl font-bold text-gray-800">🌿 Agri-Sage AI</h1>
+    </header>
+
+    <main id="chat-container" class="flex-1 overflow-y-auto p-4 md:p-6">
+        <div id="chat-log" class="max-w-3xl mx-auto space-y-6">
+            <!-- Chat messages will be appended here -->
+        </div>
+    </main>
+
+    <footer class="bg-white border-t border-gray-200 p-4">
+        <div class="max-w-3xl mx-auto">
+            <form id="chat-form" class="relative">
+                <div id="image-preview-container" class="absolute bottom-full left-2 mb-2 hidden">
+                    <div class="relative">
+                        <img id="image-preview" class="h-20 w-20 rounded-lg object-cover border-2 border-white shadow-lg">
+                        <button type="button" id="remove-image-btn" class="absolute -top-2 -right-2 bg-gray-700 text-white rounded-full h-6 w-6 flex items-center justify-center text-xs">&times;</button>
+                    </div>
+                </div>
+                <div class="flex items-center bg-gray-100 rounded-full p-2">
+                    <label for="image-upload" class="cursor-pointer px-3 text-gray-500 hover:text-green-600 transition-colors">
+                        <i class="fas fa-paperclip text-xl"></i>
+                    </label>
+                    <input type="file" id="image-upload" class="hidden" accept="image/*">
+                    <input type="text" id="message-input" placeholder="Ask a question or attach an image for analysis..." class="w-full bg-transparent focus:outline-none text-lg px-2 text-gray-800" required>
+                    <button type="submit" id="send-button" class="bg-green-500 hover:bg-green-600 text-white rounded-full w-10 h-10 flex items-center justify-center ml-2 transition-transform duration-200 active:scale-90 flex-shrink-0">
+                        <i class="fas fa-arrow-up"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </footer>
+
+    <script>
+        const chatLog = document.getElementById('chat-log');
+        const chatForm = document.getElementById('chat-form');
+        const messageInput = document.getElementById('message-input');
+        const imageUpload = document.getElementById('image-upload');
+        const imagePreviewContainer = document.getElementById('image-preview-container');
+        const imagePreview = document.getElementById('image-preview');
+        const removeImageBtn = document.getElementById('remove-image-btn');
+        const sendButton = document.getElementById('send-button');
+
+        // --- CONTEXT MEMORY ---
+        let currentDiseaseContext = null;
+
+        // Greet the user on page load
+        window.onload = () => {
+            addMessage('agent', "Namaste! I am Agri-Sage, your AI agricultural advisor. How can I help you today? You can ask me a question, or simply attach a leaf image for a full analysis.");
+        };
+
+        // Handle image selection
+        imageUpload.addEventListener('change', () => {
+            if (imageUpload.files && imageUpload.files[0]) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    imagePreview.src = e.target.result;
+                    imagePreviewContainer.classList.remove('hidden');
+                };
+                reader.readAsDataURL(imageUpload.files[0]);
+                messageInput.placeholder = "Add a comment about the image (optional)...";
+            }
+        });
+
+        // Handle image removal
+        removeImageBtn.addEventListener('click', () => {
+            imageUpload.value = '';
+            imagePreview.src = '';
+            imagePreviewContainer.classList.add('hidden');
+            messageInput.placeholder = "Ask a question or attach an image for analysis...";
+        });
+
+        // Handle form submission
+        chatForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const message = messageInput.value.trim();
+            const imageFile = imageUpload.files[0];
+
+            if (!message && !imageFile) return;
+
+            addMessage('user', message, imageFile);
+            messageInput.value = '';
+            imageUpload.value = '';
+            imagePreviewContainer.classList.add('hidden');
+            messageInput.placeholder = "Ask a question or attach an image for analysis...";
+
+            showTypingIndicator();
+
+            const formData = new FormData();
+            formData.append('message', message);
+            if (imageFile) {
+                formData.append('image', imageFile);
+                currentDiseaseContext = null; 
+            }
+            if (currentDiseaseContext) {
+                formData.append('context_disease', currentDiseaseContext);
+            }
+
+            try {
+                const response = await fetch('/chat', {
+                    method: 'POST',
+                    body: formData,
+                });
+                const data = await response.json();
+                removeTypingIndicator();
+                
+                // --- UPDATE CONTEXT MEMORY ---
+                if (data.disease_name) {
+                    currentDiseaseContext = data.disease_name;
+                }
+
+                addMessage('agent', data.response, null, data.image);
+
+            } catch (error) {
+                removeTypingIndicator();
+                addMessage('agent', "I'm sorry, I encountered an error. Please try again.");
+            }
+        });
+
+        function addMessage(sender, text, imageFile = null, imageB64 = null) {
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('message', 'flex', 'items-start', 'gap-4');
+            
+            let imageHTML = '';
+            if (imageFile) {
+                imageHTML = `<img src="${URL.createObjectURL(imageFile)}" class="w-24 h-24 rounded-lg object-cover mt-2">`;
+            }
+
+            if (sender === 'user') {
+                messageElement.classList.add('justify-end');
+                messageElement.innerHTML = `
+                    <div class="bg-green-100 text-green-900 rounded-xl p-4 max-w-lg">
+                        <p>${text || ''}</p>
+                        ${imageHTML}
+                    </div>
+                    <div class="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center font-bold text-gray-600 flex-shrink-0">U</div>
+                `;
+            } else {
+                let agentText = text;
+                if (imageB64) {
+                    agentText = `![Uploaded Leaf](data:image/png;base64,${imageB64})\n\n` + text;
+                }
+                messageElement.innerHTML = `
+                    <div class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center text-white font-bold flex-shrink-0">🌿</div>
+                    <div class="bg-white text-gray-800 rounded-xl p-4 max-w-lg border border-gray-200">
+                        <div class="prose max-w-none">${marked.parse(agentText)}</div>
+                    </div>
+                `;
+            }
+            chatLog.appendChild(messageElement);
+            chatLog.parentElement.scrollTop = chatLog.parentElement.scrollHeight;
+        }
+
+        function showTypingIndicator() {
+            const typingElement = document.createElement('div');
+            typingElement.id = 'typing-indicator';
+            typingElement.classList.add('message', 'flex', 'items-start', 'gap-4');
+            typingElement.innerHTML = `
+                <div class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center text-white font-bold flex-shrink-0">🌿</div>
+                <div class="bg-white text-gray-800 rounded-xl p-4 border border-gray-200">
+                    <div class="typing-indicator">
+                        <span></span><span></span><span></span>
+                    </div>
+                </div>
+            `;
+            chatLog.appendChild(typingElement);
+            chatLog.parentElement.scrollTop = chatLog.parentElement.scrollHeight;
+        }
+
+        function removeTypingIndicator() {
+            const typingElement = document.getElementById('typing-indicator');
+            if (typingElement) {
+                typingElement.remove();
+            }
+        }
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,16 @@
+district,soil_type,climate,precipitation,recommended_crop
+Kathmandu,Loamy,Temperate,High,Potato
+Bhaktapur,Clayey,Temperate,High,Rice
+Lalitpur,Alluvial,Temperate,High,Wheat
+Chitwan,Sandy Loam,Sub-tropical,High,Maize
+Pokhara,Gravelly,Temperate,Very High,Millet
+Mustang,Sandy,Alpine,Low,Barley
+Jhapa,Alluvial,Tropical,Very High,Paddy
+Morang,Alluvial,Tropical,Very High,Jute
+Ilam,Loamy,Temperate,High,Tea
+Rupandehi,Clayey Loam,Sub-tropical,High,Sugarcane
+Banke,Sandy Loam,Tropical,Medium,Lentil
+Kailali,Alluvial,Tropical,High,Paddy
+Gorkha,Loamy,Temperate,High,Millet
+Syangja,Red Soil,Temperate,High,Orange
+Dolpa,Sandy,Alpine,Low,Buckwheat
